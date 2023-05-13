@@ -79,7 +79,7 @@ app.delete('/data/pop', (req, res) => {
     res.status(404).end();
   }
 });
-
+app.use(cors());
 // Start the server on port 3000
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
