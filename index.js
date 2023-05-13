@@ -28,6 +28,7 @@ app.use(express.json());
 
 // Endpoint to get the entire array
 app.get('/data', (req, res) => {
+  res.header("Access-Control-Allow-Origin", "*");
   res.status(200).json(data);
 });
 
