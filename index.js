@@ -1,6 +1,11 @@
 const express = require('express');
 const app = express();
-
+const cors=require("cors");
+const corsOptions ={
+   origin:'*', 
+   credentials:true,            //access-control-allow-credentials:true
+   optionSuccessStatus:200,
+}
 // Define the data array
 let data = [
   {
@@ -24,7 +29,7 @@ let data = [
 ];
 
 // Middleware to parse JSON request bodies
-app.use(express.json());
+app.use(cors(corsOptions)) 
 
 // Endpoint to get the entire array
 app.get('/data', (req, res) => {
