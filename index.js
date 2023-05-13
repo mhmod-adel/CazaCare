@@ -79,7 +79,9 @@ app.delete('/data/pop', (req, res) => {
     res.status(404).end();
   }
 });
-app.use(cors());
+app.use(cors({
+  origin: 'http://localhost:4200' // Replace with your origin URL
+}));
 // Start the server on port 3000
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
