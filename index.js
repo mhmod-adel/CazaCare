@@ -33,6 +33,7 @@ app.get('/data', (req, res) => {
 
 // Endpoint to get a specific item by ID
 app.get('/data/:id', (req, res) => {
+  res.header('Access-Control-Allow-Origin', 'http://localhost:4200');
   const id = parseInt(req.params.id);
   const item = data.find(item => item.id === id);
   if (item) {
