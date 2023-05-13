@@ -1,4 +1,5 @@
-const http = require('http');
+const express = require('express');
+const app = express();
 
 // Define the data array
 let data = [
@@ -22,83 +23,65 @@ let data = [
   }
 ];
 
-// Create the HTTP server
-const server = http.createServer((req, res) => {
-  // Set the response headers
-  res.setHeader('Content-Type', 'application/json');
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, DELETE');
+// Middleware to parse JSON request bodies
+app.use(express.json());
 
-  // Handle GET requests to /data
-  if (req.method === 'GET' && req.url === '/data') {
-    res.statusCode = 200;
-    res.end(JSON.stringify(data));
+// Endpoint to get the entire array
+app.get('/data', (req, res) => {
+  res.status(200).json(data);
+});
+
+// Endpoint to get a specific item by ID
+app.get('/data/:id', (req, res) => {
+  const id = parseInt(req.params.id);
+  const item = data.find(item => item.id === id);
+  if (item) {
+    res.status(200).json(item);
+  } else {
+    res.status(404).end();
   }
+});
 
-  // Handle GET requests to /data/:id
-  else if (req.method === 'GET' && /^\/data\/\d+$/.test(req.url)) {
-    const id = parseInt(req.url.split('/')[2]);
-    const item = data.find(item => item.id === id);
-    if (item) {
-      res.statusCode = 200;
-      res.end(JSON.stringify(item));
-    } else {
-      res.statusCode = 404;
-      res.end();
-    }
+// Endpoint to add a new item to the array
+app.post('/data', (req, res) => {
+  const newItem = {
+    id: data.length + 1,
+    ...req.body
+  };
+  data.push(newItem);
+  res.status(201).json(newItem);
+});
+
+// Endpoint to delete all items from the array
+app.delete('/data', (req, res) => {
+  data = [];
+  res.status(204).end();
+});
+
+// Endpoint to delete a specific item by ID
+app.delete('/data/:id', (req, res) => {
+  const id = parseInt(req.params.id);
+  const itemIndex = data.findIndex(item => item.id === id);
+  if (itemIndex >= 0) {
+    data.splice(itemIndex, 1);
+    res.status(204).end();
+  } else {
+    res.status(404).end();
   }
+});
 
-  // Handle POST requests to /data
-  else if (req.method === 'POST' && req.url === '/data') {
-    let body = '';
-    req.on('data', chunk => {
-      body += chunk.toString();
-    });
-    req.on('end', () => {
-      const item = JSON.parse(body);
-      item.id = data.length + 1;
-      data.push(item);
-      res.statusCode = 201;
-      res.end(JSON.stringify(item));
-    });
-  }
-
-  // Handle DELETE requests to /data
-  else if (req.method === 'DELETE' && req.url === '/data') {
-    data = [];
-    res.statusCode = 204;
-    res.end();
-  }
-
-  // Handle DELETE requests to /data/:id
-  else if (req.method === 'DELETE' && /^\/data\/\d+$/.test(req.url)) {
-    const id = parseInt(req.url.split('/')[2]);
-    const itemIndex = data.findIndex(item => item.id === id);
-    if (itemIndex >= 0) {
-      data.splice(itemIndex, 1);
-      res.statusCode = 204;
-      res.end();
-    } else {
-      res.statusCode = 404;
-      res.end();
-    }
-  }
-
-  // Handle GET requests to /
-  else if (req.method === 'GET' && req.url === '/') {
-    res.setHeader('Content-Type', 'text/plain');
-    res.statusCode = 200;
-    res.end('Hello, world!');
-  }
-
-  // Handle all other requests
-  else {
-    res.statusCode = 404;
-    res.end();
+// Endpoint to pop the last item from the array
+app.delete('/data/pop', (req, res) => {
+  const poppedItem = data.pop();
+  if (poppedItem) {
+    res.status(200).json(poppedItem);
+  } else {
+    res.status(404).end();
   }
 });
 
 // Start the server on port 3000
-server.listen(3000||process.env.PORT, () => {
-  console.log('Server running on port 3000');
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
 });
